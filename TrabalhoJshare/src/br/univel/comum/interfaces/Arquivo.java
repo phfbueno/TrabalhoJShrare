@@ -1,4 +1,4 @@
-package br.univel.jshare.comum.pojos;
+package br.univel.comum.interfaces;
 
 import java.io.Serializable;
 import java.util.Date;
