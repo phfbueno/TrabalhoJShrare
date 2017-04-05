@@ -17,6 +17,7 @@ import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -67,6 +68,8 @@ public class Tela extends JFrame implements IServer {
 	private List<Cliente> clienteRegistrados;
 	private JScrollPane scrollPane_2;
 	private JTextArea textArea;
+	
+	Map<Cliente, List<Arquivo>> listaDeArquivos = new HashMap<>();
 
 	/**
 	 * Launch the application.
@@ -177,6 +180,8 @@ public class Tela extends JFrame implements IServer {
 					conexaoCliente.registrarCliente(getMyCliente());
 					List<Arquivo> myFiles = getMyFiles();
 					
+					conexaoCliente.publicarListaArquivos(getMyCliente(), getMyFiles());
+					
 					
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -197,26 +202,7 @@ public class Tela extends JFrame implements IServer {
 				return cliente;
 			}
 
-			public List<Arquivo> getMyFiles() {
-
-				File diretorioPadrao = new File("." + File.separatorChar + "shared" + File.separatorChar);
-				List<Arquivo> myFiles = new ArrayList<>();
-				for (File file : diretorioPadrao.listFiles()) {
-					if (file.isFile()) {
-						Arquivo arquivo = new Arquivo();
-
-						arquivo.setPath(file.getPath());
-						arquivo.setDataHoraModificacao(new Date(file.lastModified()));
-						arquivo.setTamanho(file.length());
-						arquivo.setNome(file.getName());
-						arquivo.setExtensao(
-								file.getName().substring(file.getName().lastIndexOf("."), file.getName().length()));
-
-						myFiles.add(arquivo);
-					}
-				}
-				return myFiles;
-			}
+			
 
 		});
 		GridBagConstraints gbc_btnConectar = new GridBagConstraints();
@@ -375,7 +361,7 @@ public class Tela extends JFrame implements IServer {
 
 	private void inicializaServidor() throws AccessException, RemoteException {
 
-		System.setProperty("java.rmi.server.hostname", "localhost"); // seta o
+		System.setProperty("java.rmi.server.hostname", txtServidor.getText()); // seta o
 																		// hostname
 																		// do
 																		// RMI
@@ -392,19 +378,57 @@ public class Tela extends JFrame implements IServer {
 
 	}
 
+	public List<Arquivo> getMyFiles() {
+
+		File diretorioPadrao = new File("." + File.separatorChar + "shared" + File.separatorChar);
+		List<Arquivo> myFiles = new ArrayList<>();
+		for (File file : diretorioPadrao.listFiles()) {
+			if (file.isFile()) {
+				Arquivo arquivo = new Arquivo();
+
+				arquivo.setPath(file.getPath());
+				arquivo.setDataHoraModificacao(new Date(file.lastModified()));
+				arquivo.setTamanho(file.length());
+				arquivo.setNome(file.getName());
+				arquivo.setExtensao(
+						file.getName().substring(file.getName().lastIndexOf("."), file.getName().length()));
+
+				myFiles.add(arquivo);
+			}
+		}
+		return myFiles;
+	}
 	@Override
 	public void registrarCliente(Cliente c) throws RemoteException {
 
 		textArea.append("Cliente" + c.getNome() + " se conectou !\n");
 
 		clienteRegistrados.add(c);
+		
+		listaDeArquivos.put(c, getMyFiles());
 
 	}
 
 	@Override
 	public void publicarListaArquivos(Cliente c, List<Arquivo> lista) throws RemoteException {
-		// TODO Auto-generated method stub
+		
+		if (listaDeArquivos.containsKey(c)) {
+			listaDeArquivos.entrySet().forEach(e -> {
+				if (e.getKey().equals(c)) {
+					e.setValue(lista);
+					textArea.append("Lista de arquivos de " + e.getKey().getNome() + " foi atualizada!\n");
+				}
+			});
+		} else {
+			textArea.append("Cliente não encontrado\n");
+		}
 
+		System.out.println("Lista de Arquivos no servidor");
+		
+		for (Arquivo arquivo : lista) {
+			System.out.println(arquivo);
+		}
+		
 	}
 
 	@Override
