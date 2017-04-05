@@ -21,7 +21,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.swing.AbstractButton;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -30,11 +33,13 @@ import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
+import javax.swing.table.TableModel;
 
 import br.univel.comum.interfaces.Arquivo;
 import br.univel.comum.interfaces.Cliente;
 import br.univel.comum.interfaces.IServer;
 import br.univel.comum.interfaces.TipoFiltro;
+
 
 public class Tela extends JFrame implements IServer {
 
@@ -68,8 +73,12 @@ public class Tela extends JFrame implements IServer {
 	private List<Cliente> clienteRegistrados;
 	private JScrollPane scrollPane_2;
 	private JTextArea textArea;
+
+
 	
 	Map<Cliente, List<Arquivo>> listaDeArquivos = new HashMap<>();
+	private JComboBox comboBox;
+	private JLabel lblFiltro;
 
 	/**
 	 * Launch the application.
@@ -93,15 +102,14 @@ public class Tela extends JFrame implements IServer {
 	public Tela() {
 		setTitle("SofrenciaShare");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 813, 422);
+		setBounds(100, 100, 712, 397);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
 		GridBagLayout gbl_contentPane = new GridBagLayout();
-		gbl_contentPane.columnWidths = new int[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+		gbl_contentPane.columnWidths = new int[] { 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 		gbl_contentPane.rowHeights = new int[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-		gbl_contentPane.columnWeights = new double[] { 1.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0,
-				0.0, 0.0, 1.0, 0.0, 0.0, 0.0, Double.MIN_VALUE };
+		gbl_contentPane.columnWeights = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0 };
 		gbl_contentPane.rowWeights = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 1.0,
 				Double.MIN_VALUE };
 		contentPane.setLayout(gbl_contentPane);
@@ -117,10 +125,10 @@ public class Tela extends JFrame implements IServer {
 		txtNome = new JTextField();
 		txtNome.setText("PAULO HENRIQUE DA FONSECA BUENO");
 		GridBagConstraints gbc_txtNome = new GridBagConstraints();
-		gbc_txtNome.gridwidth = 10;
+		gbc_txtNome.gridwidth = 6;
 		gbc_txtNome.insets = new Insets(0, 0, 5, 5);
 		gbc_txtNome.fill = GridBagConstraints.HORIZONTAL;
-		gbc_txtNome.gridx = 3;
+		gbc_txtNome.gridx = 1;
 		gbc_txtNome.gridy = 0;
 		contentPane.add(txtNome, gbc_txtNome);
 		txtNome.setColumns(10);
@@ -136,34 +144,20 @@ public class Tela extends JFrame implements IServer {
 		txtServidor = new JTextField();
 		txtServidor.setText("localhost");
 		GridBagConstraints gbc_txtServidor = new GridBagConstraints();
-		gbc_txtServidor.gridwidth = 10;
+		gbc_txtServidor.gridwidth = 6;
 		gbc_txtServidor.insets = new Insets(0, 0, 5, 5);
 		gbc_txtServidor.fill = GridBagConstraints.HORIZONTAL;
-		gbc_txtServidor.gridx = 3;
+		gbc_txtServidor.gridx = 1;
 		gbc_txtServidor.gridy = 1;
 		contentPane.add(txtServidor, gbc_txtServidor);
 		txtServidor.setColumns(10);
 
-		lblPorta = new JLabel("Porta");
-		GridBagConstraints gbc_lblPorta = new GridBagConstraints();
-		gbc_lblPorta.anchor = GridBagConstraints.EAST;
-		gbc_lblPorta.insets = new Insets(0, 0, 5, 5);
-		gbc_lblPorta.gridx = 13;
-		gbc_lblPorta.gridy = 1;
-		contentPane.add(lblPorta, gbc_lblPorta);
-
-		txtPorta = new JTextField();
-		txtPorta.setText("1818");
-		GridBagConstraints gbc_txtPorta = new GridBagConstraints();
-		gbc_txtPorta.insets = new Insets(0, 0, 5, 5);
-		gbc_txtPorta.fill = GridBagConstraints.HORIZONTAL;
-		gbc_txtPorta.gridx = 14;
-		gbc_txtPorta.gridy = 1;
-		contentPane.add(txtPorta, gbc_txtPorta);
-		txtPorta.setColumns(10);
-
 		btnConectar = new JButton("Conectar");
 		btnConectar.addActionListener(new ActionListener() {
+
+			private AbstractButton fieldQuery;
+			private AbstractButton fieldFiltro;
+			private JTextArea fieldStatusCliente;
 
 			public void actionPerformed(ActionEvent arg0) {
 				conectarnoServidor();
@@ -179,13 +173,14 @@ public class Tela extends JFrame implements IServer {
 
 					conexaoCliente.registrarCliente(getMyCliente());
 					List<Arquivo> myFiles = getMyFiles();
-					
+
 					conexaoCliente.publicarListaArquivos(getMyCliente(), getMyFiles());
-					
-					
+
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
+				
+				
 
 			}
 
@@ -202,18 +197,34 @@ public class Tela extends JFrame implements IServer {
 				return cliente;
 			}
 
-			
-
 		});
+
+		lblPorta = new JLabel("Porta");
+		GridBagConstraints gbc_lblPorta = new GridBagConstraints();
+		gbc_lblPorta.anchor = GridBagConstraints.EAST;
+		gbc_lblPorta.insets = new Insets(0, 0, 5, 5);
+		gbc_lblPorta.gridx = 7;
+		gbc_lblPorta.gridy = 1;
+		contentPane.add(lblPorta, gbc_lblPorta);
+
+		txtPorta = new JTextField();
+		txtPorta.setText("1818");
+		GridBagConstraints gbc_txtPorta = new GridBagConstraints();
+		gbc_txtPorta.insets = new Insets(0, 0, 5, 5);
+		gbc_txtPorta.fill = GridBagConstraints.HORIZONTAL;
+		gbc_txtPorta.gridx = 8;
+		gbc_txtPorta.gridy = 1;
+		contentPane.add(txtPorta, gbc_txtPorta);
+		txtPorta.setColumns(10);
 		GridBagConstraints gbc_btnConectar = new GridBagConstraints();
 		gbc_btnConectar.insets = new Insets(0, 0, 5, 5);
-		gbc_btnConectar.gridx = 16;
+		gbc_btnConectar.gridx = 9;
 		gbc_btnConectar.gridy = 1;
 		contentPane.add(btnConectar, gbc_btnConectar);
 
 		JLabel lblPesquisar = new JLabel("Pesquisar");
 		GridBagConstraints gbc_lblPesquisar = new GridBagConstraints();
-		gbc_lblPesquisar.anchor = GridBagConstraints.EAST;
+		gbc_lblPesquisar.anchor = GridBagConstraints.WEST;
 		gbc_lblPesquisar.insets = new Insets(0, 0, 5, 5);
 		gbc_lblPesquisar.gridx = 0;
 		gbc_lblPesquisar.gridy = 2;
@@ -221,10 +232,10 @@ public class Tela extends JFrame implements IServer {
 
 		textField = new JTextField();
 		GridBagConstraints gbc_textField = new GridBagConstraints();
-		gbc_textField.gridwidth = 12;
+		gbc_textField.gridwidth = 6;
 		gbc_textField.insets = new Insets(0, 0, 5, 5);
 		gbc_textField.fill = GridBagConstraints.HORIZONTAL;
-		gbc_textField.gridx = 3;
+		gbc_textField.gridx = 1;
 		gbc_textField.gridy = 2;
 		contentPane.add(textField, gbc_textField);
 		textField.setColumns(10);
@@ -234,33 +245,49 @@ public class Tela extends JFrame implements IServer {
 			public void actionPerformed(ActionEvent arg0) {
 			}
 		});
+		
+		lblFiltro = new JLabel("Filtro");
+		GridBagConstraints gbc_lblFiltro = new GridBagConstraints();
+		gbc_lblFiltro.insets = new Insets(0, 0, 5, 5);
+		gbc_lblFiltro.anchor = GridBagConstraints.EAST;
+		gbc_lblFiltro.gridx = 7;
+		gbc_lblFiltro.gridy = 2;
+		contentPane.add(lblFiltro, gbc_lblFiltro);
+		
+		comboBox = new JComboBox();
+		comboBox.setModel(new DefaultComboBoxModel<TipoFiltro>(TipoFiltro.values()));
+		GridBagConstraints gbc_comboBox = new GridBagConstraints();
+		gbc_comboBox.insets = new Insets(0, 0, 5, 5);
+		gbc_comboBox.fill = GridBagConstraints.HORIZONTAL;
+		gbc_comboBox.gridx = 8;
+		gbc_comboBox.gridy = 2;
+		contentPane.add(comboBox, gbc_comboBox);
 		GridBagConstraints gbc_btnPesquisar = new GridBagConstraints();
 		gbc_btnPesquisar.anchor = GridBagConstraints.WEST;
 		gbc_btnPesquisar.insets = new Insets(0, 0, 5, 5);
-		gbc_btnPesquisar.gridwidth = 3;
-		gbc_btnPesquisar.gridx = 16;
+		gbc_btnPesquisar.gridx = 9;
 		gbc_btnPesquisar.gridy = 2;
 		contentPane.add(btnPesquisar, gbc_btnPesquisar);
-
-		lblNewLabel = new JLabel("Meus Arquivos");
-		GridBagConstraints gbc_lblNewLabel = new GridBagConstraints();
-		gbc_lblNewLabel.gridwidth = 2;
-		gbc_lblNewLabel.insets = new Insets(0, 0, 5, 5);
-		gbc_lblNewLabel.gridx = 3;
-		gbc_lblNewLabel.gridy = 4;
-		contentPane.add(lblNewLabel, gbc_lblNewLabel);
+		
+				lblNewLabel = new JLabel("Meus Arquivos");
+				GridBagConstraints gbc_lblNewLabel = new GridBagConstraints();
+				gbc_lblNewLabel.gridwidth = 2;
+				gbc_lblNewLabel.insets = new Insets(0, 0, 5, 5);
+				gbc_lblNewLabel.gridx = 1;
+				gbc_lblNewLabel.gridy = 4;
+				contentPane.add(lblNewLabel, gbc_lblNewLabel);
 
 		lblNewLabel_1 = new JLabel("Arquivos Servidor");
 		GridBagConstraints gbc_lblNewLabel_1 = new GridBagConstraints();
 		gbc_lblNewLabel_1.insets = new Insets(0, 0, 5, 5);
-		gbc_lblNewLabel_1.gridx = 14;
+		gbc_lblNewLabel_1.gridx = 8;
 		gbc_lblNewLabel_1.gridy = 4;
 		contentPane.add(lblNewLabel_1, gbc_lblNewLabel_1);
 
 		scrollPane = new JScrollPane();
 		GridBagConstraints gbc_scrollPane = new GridBagConstraints();
 		gbc_scrollPane.gridheight = 3;
-		gbc_scrollPane.gridwidth = 9;
+		gbc_scrollPane.gridwidth = 4;
 		gbc_scrollPane.insets = new Insets(0, 0, 5, 5);
 		gbc_scrollPane.fill = GridBagConstraints.BOTH;
 		gbc_scrollPane.gridx = 0;
@@ -272,9 +299,8 @@ public class Tela extends JFrame implements IServer {
 
 		btnTrans = new JButton("Transferir");
 		GridBagConstraints gbc_btnTrans = new GridBagConstraints();
-		gbc_btnTrans.anchor = GridBagConstraints.WEST;
 		gbc_btnTrans.insets = new Insets(0, 0, 5, 5);
-		gbc_btnTrans.gridx = 9;
+		gbc_btnTrans.gridx = 4;
 		gbc_btnTrans.gridy = 5;
 		contentPane.add(btnTrans, gbc_btnTrans);
 
@@ -282,38 +308,14 @@ public class Tela extends JFrame implements IServer {
 		GridBagConstraints gbc_scrollPane_1 = new GridBagConstraints();
 		gbc_scrollPane_1.insets = new Insets(0, 0, 5, 0);
 		gbc_scrollPane_1.gridheight = 3;
-		gbc_scrollPane_1.gridwidth = 9;
+		gbc_scrollPane_1.gridwidth = 6;
 		gbc_scrollPane_1.fill = GridBagConstraints.BOTH;
-		gbc_scrollPane_1.gridx = 11;
+		gbc_scrollPane_1.gridx = 5;
 		gbc_scrollPane_1.gridy = 5;
 		contentPane.add(scrollPane_1, gbc_scrollPane_1);
 
 		table_1 = new JTable();
 		scrollPane_1.setViewportView(table_1);
-
-		btnLigarServidor = new JButton("Ligar Servidor");
-		btnLigarServidor.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				if (servidor == null) {
-
-					try {
-						inicializaServidor();
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-					btnLigarServidor.setEnabled(false);
-					btnDesligarServidor.setEnabled(true);
-				} else {
-					destroiServidor();
-
-				}
-			}
-		});
-		GridBagConstraints gbc_btnLigarServidor = new GridBagConstraints();
-		gbc_btnLigarServidor.insets = new Insets(0, 0, 5, 5);
-		gbc_btnLigarServidor.gridx = 0;
-		gbc_btnLigarServidor.gridy = 8;
-		contentPane.add(btnLigarServidor, gbc_btnLigarServidor);
 
 		btnDesligarServidor = new JButton("Desligar Servidor");
 		btnDesligarServidor.setEnabled(false);
@@ -335,16 +337,39 @@ public class Tela extends JFrame implements IServer {
 				}
 			}
 		});
+
+		btnLigarServidor = new JButton("Ligar Servidor");
+		btnLigarServidor.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				if (servidor == null) {
+
+					try {
+						inicializaServidor();
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+					btnLigarServidor.setEnabled(false);
+					btnDesligarServidor.setEnabled(true);
+				} else {
+					destroiServidor();
+
+				}
+			}
+		});
+		GridBagConstraints gbc_btnLigarServidor = new GridBagConstraints();
+		gbc_btnLigarServidor.insets = new Insets(0, 0, 5, 5);
+		gbc_btnLigarServidor.gridx = 1;
+		gbc_btnLigarServidor.gridy = 8;
+		contentPane.add(btnLigarServidor, gbc_btnLigarServidor);
 		GridBagConstraints gbc_btnDesligarServidor = new GridBagConstraints();
 		gbc_btnDesligarServidor.insets = new Insets(0, 0, 5, 5);
-		gbc_btnDesligarServidor.gridx = 1;
+		gbc_btnDesligarServidor.gridx = 2;
 		gbc_btnDesligarServidor.gridy = 8;
 		contentPane.add(btnDesligarServidor, gbc_btnDesligarServidor);
 
 		scrollPane_2 = new JScrollPane();
 		GridBagConstraints gbc_scrollPane_2 = new GridBagConstraints();
-		gbc_scrollPane_2.gridwidth = 20;
-		gbc_scrollPane_2.insets = new Insets(0, 0, 0, 5);
+		gbc_scrollPane_2.gridwidth = 11;
 		gbc_scrollPane_2.fill = GridBagConstraints.BOTH;
 		gbc_scrollPane_2.gridx = 0;
 		gbc_scrollPane_2.gridy = 9;
@@ -361,10 +386,11 @@ public class Tela extends JFrame implements IServer {
 
 	private void inicializaServidor() throws AccessException, RemoteException {
 
-		System.setProperty("java.rmi.server.hostname", txtServidor.getText()); // seta o
-																		// hostname
-																		// do
-																		// RMI
+		System.setProperty("java.rmi.server.hostname", txtServidor.getText()); // seta
+																				// o
+		// hostname
+		// do
+		// RMI
 
 		conexaoServidor = (IServer) UnicastRemoteObject.exportObject(Tela.this, 0); // exporta
 
@@ -390,45 +416,46 @@ public class Tela extends JFrame implements IServer {
 				arquivo.setDataHoraModificacao(new Date(file.lastModified()));
 				arquivo.setTamanho(file.length());
 				arquivo.setNome(file.getName());
-				arquivo.setExtensao(
-						file.getName().substring(file.getName().lastIndexOf("."), file.getName().length()));
+				arquivo.setExtensao(file.getName().substring(file.getName().lastIndexOf("."), file.getName().length()));
 
 				myFiles.add(arquivo);
 			}
 		}
 		return myFiles;
 	}
+
 	@Override
 	public void registrarCliente(Cliente c) throws RemoteException {
 
 		textArea.append("Cliente" + c.getNome() + " se conectou !\n");
 
 		clienteRegistrados.add(c);
-		
+
 		listaDeArquivos.put(c, getMyFiles());
 
 	}
 
 	@Override
 	public void publicarListaArquivos(Cliente c, List<Arquivo> lista) throws RemoteException {
-		
+
 		if (listaDeArquivos.containsKey(c)) {
 			listaDeArquivos.entrySet().forEach(e -> {
 				if (e.getKey().equals(c)) {
 					e.setValue(lista);
 					textArea.append("Lista de arquivos de " + e.getKey().getNome() + " foi atualizada!\n");
 				}
+
 			});
 		} else {
 			textArea.append("Cliente não encontrado\n");
 		}
 
 		System.out.println("Lista de Arquivos no servidor");
-		
+
 		for (Arquivo arquivo : lista) {
 			System.out.println(arquivo);
 		}
-		
+
 	}
 
 	@Override
