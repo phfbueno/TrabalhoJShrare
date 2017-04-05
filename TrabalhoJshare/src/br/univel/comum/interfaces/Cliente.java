@@ -85,4 +85,19 @@ public class Cliente implements Serializable {
 		return true;
 	}
 
+	public Cliente(long id, String nome, String ip, int porta) {
+		super();
+		this.id = id;
+		this.nome = nome;
+		this.ip = ip;
+		this.porta = porta;
+	}
+
+	
+	
+	
+	
+	public Cliente() {
+		// TODO Auto-generated constructor stub
+	}
 }
