@@ -41,10 +41,11 @@ import br.univel.comum.interfaces.IServer;
 import br.univel.comum.interfaces.TipoFiltro;
 
 
+
 public class Tela extends JFrame implements IServer {
 
 	private JPanel contentPane;
-	private JTextField textField;
+	private JTextField textPesquisa;
 	private JButton btnPesquisar;
 	private JLabel lblN;
 	private JTextField txtNome;
@@ -77,7 +78,7 @@ public class Tela extends JFrame implements IServer {
 
 	
 	Map<Cliente, List<Arquivo>> listaDeArquivos = new HashMap<>();
-	private JComboBox comboBox;
+	private JComboBox comboFiltro;
 	private JLabel lblFiltro;
 
 	/**
@@ -181,6 +182,17 @@ public class Tela extends JFrame implements IServer {
 				}
 				
 				
+				String c = textPesquisa.getText();
+				
+//				try {
+//					
+//				Map<Cliente, List<Arquivo>> resultMap = conexaoCliente.publicarListaArquivos(c, lista);;
+				
+//				TableModel tb = new ListaArquivos(resultMap);
+//				table_1.setModel(tb);
+//				} catch (RemoteException e) {
+//					e.printStackTrace();
+//				}
 
 			}
 
@@ -230,15 +242,15 @@ public class Tela extends JFrame implements IServer {
 		gbc_lblPesquisar.gridy = 2;
 		contentPane.add(lblPesquisar, gbc_lblPesquisar);
 
-		textField = new JTextField();
-		GridBagConstraints gbc_textField = new GridBagConstraints();
-		gbc_textField.gridwidth = 6;
-		gbc_textField.insets = new Insets(0, 0, 5, 5);
-		gbc_textField.fill = GridBagConstraints.HORIZONTAL;
-		gbc_textField.gridx = 1;
-		gbc_textField.gridy = 2;
-		contentPane.add(textField, gbc_textField);
-		textField.setColumns(10);
+		textPesquisa = new JTextField();
+		GridBagConstraints gbc_textPesquisa = new GridBagConstraints();
+		gbc_textPesquisa.gridwidth = 6;
+		gbc_textPesquisa.insets = new Insets(0, 0, 5, 5);
+		gbc_textPesquisa.fill = GridBagConstraints.HORIZONTAL;
+		gbc_textPesquisa.gridx = 1;
+		gbc_textPesquisa.gridy = 2;
+		contentPane.add(textPesquisa, gbc_textPesquisa);
+		textPesquisa.setColumns(10);
 
 		btnPesquisar = new JButton("Pesquisar");
 		btnPesquisar.addActionListener(new ActionListener() {
@@ -254,14 +266,14 @@ public class Tela extends JFrame implements IServer {
 		gbc_lblFiltro.gridy = 2;
 		contentPane.add(lblFiltro, gbc_lblFiltro);
 		
-		comboBox = new JComboBox();
-		comboBox.setModel(new DefaultComboBoxModel<TipoFiltro>(TipoFiltro.values()));
-		GridBagConstraints gbc_comboBox = new GridBagConstraints();
-		gbc_comboBox.insets = new Insets(0, 0, 5, 5);
-		gbc_comboBox.fill = GridBagConstraints.HORIZONTAL;
-		gbc_comboBox.gridx = 8;
-		gbc_comboBox.gridy = 2;
-		contentPane.add(comboBox, gbc_comboBox);
+		comboFiltro = new JComboBox();
+		comboFiltro.setModel(new DefaultComboBoxModel<TipoFiltro>(TipoFiltro.values()));
+		GridBagConstraints gbc_comboFiltro = new GridBagConstraints();
+		gbc_comboFiltro.insets = new Insets(0, 0, 5, 5);
+		gbc_comboFiltro.fill = GridBagConstraints.HORIZONTAL;
+		gbc_comboFiltro.gridx = 8;
+		gbc_comboFiltro.gridy = 2;
+		contentPane.add(comboFiltro, gbc_comboFiltro);
 		GridBagConstraints gbc_btnPesquisar = new GridBagConstraints();
 		gbc_btnPesquisar.anchor = GridBagConstraints.WEST;
 		gbc_btnPesquisar.insets = new Insets(0, 0, 5, 5);
