@@ -174,7 +174,7 @@ public class Tela extends JFrame implements IServer {
 
 					conexaoCliente.registrarCliente(getMyCliente());
 								
-					StartarThread();
+					startarThread();
 					
 					
 					Map<Cliente, List<Arquivo>> procurarArquivo = conexaoCliente.procurarArquivo("", TipoFiltro.NOME, "");
@@ -189,7 +189,7 @@ public class Tela extends JFrame implements IServer {
 
 			}
 
-			private void StartarThread() {
+			private void startarThread() {
 				Runnable runnable = new  Runnable() {
 					public void run() {
 					

@@ -74,72 +74,44 @@ public class MyTableModel extends AbstractTableModel implements TableModel {
 	@Override
 	public Object getValueAt(int row, int col) {
 
-		switch (col) {
-		case 0:
-
-			return colunas[row][0];
-
-		case 1:
-
-			return colunas[row][1];
-		case 2:
-
-			return colunas[row][2];
-		case 3:
-
-			return colunas[row][3];
-		case 4:
-
-			return colunas[row][4];
-		case 5:
-
-			return colunas[row][5];
-		case 6:
-
-			return colunas[row][6];
-
-		case 7:
-
-			return colunas[row][7];
+		return colunas[row][col];
 		
-		default:
-			return "";
-		}
+		
 	}
 	
 	public String getCoumnName(int Column){
 		
+		switch (Column) {
+		case 0:
+
+			return "Nome do Cliente";
+
+		case 1:
+
+			return "Ip do Cliente";
+		case 2:
+
+			return "Nome do Arquivo";
+		case 3:
+
+			return "Nome do Arquivo";
+		case 4:
+
+			return "Tamanho do Arquivo";
+		case 5:
+
+			return "Data da Modificação";
+		case 6:
+
+			return "Path do Arquivo";
+
+		case 7:
+
+			return "MD5";
 		
-			switch (Column) {
-			case 0:
-
-				return "Nome do Cliente";
-
-			case 1:
-
-				return "Ip do Cliente";
-			case 2:
-
-				return "Nome do Arquivo";
-			case 3:
-
-				return "Nome do Arquivo";
-			case 4:
-
-				return "Tamanho do Arquivo";
-			case 5:
-
-				return "Data da Modificação";
-			case 6:
-
-				return "Path do Arquivo";
-
-			case 7:
-
-				return "MD5";
+		default:
+			return "";
 			
-			default:
-				return "";
 		}
 		
 	}
