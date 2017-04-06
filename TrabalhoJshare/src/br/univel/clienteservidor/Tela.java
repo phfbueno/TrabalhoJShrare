@@ -40,8 +40,6 @@ import br.univel.comum.interfaces.Cliente;
 import br.univel.comum.interfaces.IServer;
 import br.univel.comum.interfaces.TipoFiltro;
 
-
-
 public class Tela extends JFrame implements IServer {
 
 	private JPanel contentPane;
@@ -75,8 +73,6 @@ public class Tela extends JFrame implements IServer {
 	private JScrollPane scrollPane_2;
 	private JTextArea textArea;
 
-
-	
 	Map<Cliente, List<Arquivo>> listaDeArquivos = new HashMap<>();
 	private JComboBox comboFiltro;
 	private JLabel lblFiltro;
@@ -101,7 +97,7 @@ public class Tela extends JFrame implements IServer {
 	 * Create the frame.
 	 */
 	public Tela() {
-		setTitle("SofrenciaShare");
+		setTitle("EmpireShare");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 712, 397);
 		contentPane = new JPanel();
@@ -159,6 +155,7 @@ public class Tela extends JFrame implements IServer {
 			private AbstractButton fieldQuery;
 			private AbstractButton fieldFiltro;
 			private JTextArea fieldStatusCliente;
+			private Thread threadPublicarLista;
 
 			public void actionPerformed(ActionEvent arg0) {
 				conectarnoServidor();
@@ -169,31 +166,55 @@ public class Tela extends JFrame implements IServer {
 				int porta = Integer.parseInt(txtPorta.getText());
 
 				try {
+
 					registryCliente = LocateRegistry.getRegistry(server, porta);
 					conexaoCliente = (IServer) registryCliente.lookup(IServer.NOME_SERVICO);
 
+					System.setProperty("java.rmi.server.hostname", server);
+
 					conexaoCliente.registrarCliente(getMyCliente());
-					List<Arquivo> myFiles = getMyFiles();
-
-					conexaoCliente.publicarListaArquivos(getMyCliente(), getMyFiles());
-
+								
+					StartarThread();
+					
+					
+					Map<Cliente, List<Arquivo>> procurarArquivo = conexaoCliente.procurarArquivo("", TipoFiltro.NOME, "");
+					
+					
+					TableModel tb = new MyTableModel(procurarArquivo);
+					table_1.setModel(tb);
+					
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
-				
-				
-				String c = textPesquisa.getText();
-				
-//				try {
-//					
-//				Map<Cliente, List<Arquivo>> resultMap = conexaoCliente.publicarListaArquivos(c, lista);;
-				
-//				TableModel tb = new ListaArquivos(resultMap);
-//				table_1.setModel(tb);
-//				} catch (RemoteException e) {
-//					e.printStackTrace();
-//				}
 
+			}
+
+			private void StartarThread() {
+				Runnable runnable = new  Runnable() {
+					public void run() {
+					
+						while (true) {
+
+							try {
+								conexaoCliente.publicarListaArquivos(getMyCliente(), getMyFiles());
+								
+								System.out.println("Log -> Lista de Arquivos publicada..");
+								
+								Thread.sleep(5000);
+								
+							} catch (RemoteException | InterruptedException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+							
+							
+						}
+						
+					}
+				};
+				
+				threadPublicarLista = new Thread(runnable);
+				threadPublicarLista.start();
 			}
 
 			public Cliente getMyCliente() {
@@ -257,7 +278,7 @@ public class Tela extends JFrame implements IServer {
 			public void actionPerformed(ActionEvent arg0) {
 			}
 		});
-		
+
 		lblFiltro = new JLabel("Filtro");
 		GridBagConstraints gbc_lblFiltro = new GridBagConstraints();
 		gbc_lblFiltro.insets = new Insets(0, 0, 5, 5);
@@ -265,7 +286,7 @@ public class Tela extends JFrame implements IServer {
 		gbc_lblFiltro.gridx = 7;
 		gbc_lblFiltro.gridy = 2;
 		contentPane.add(lblFiltro, gbc_lblFiltro);
-		
+
 		comboFiltro = new JComboBox();
 		comboFiltro.setModel(new DefaultComboBoxModel<TipoFiltro>(TipoFiltro.values()));
 		GridBagConstraints gbc_comboFiltro = new GridBagConstraints();
@@ -280,14 +301,14 @@ public class Tela extends JFrame implements IServer {
 		gbc_btnPesquisar.gridx = 9;
 		gbc_btnPesquisar.gridy = 2;
 		contentPane.add(btnPesquisar, gbc_btnPesquisar);
-		
-				lblNewLabel = new JLabel("Meus Arquivos");
-				GridBagConstraints gbc_lblNewLabel = new GridBagConstraints();
-				gbc_lblNewLabel.gridwidth = 2;
-				gbc_lblNewLabel.insets = new Insets(0, 0, 5, 5);
-				gbc_lblNewLabel.gridx = 1;
-				gbc_lblNewLabel.gridy = 4;
-				contentPane.add(lblNewLabel, gbc_lblNewLabel);
+
+		lblNewLabel = new JLabel("Meus Arquivos");
+		GridBagConstraints gbc_lblNewLabel = new GridBagConstraints();
+		gbc_lblNewLabel.gridwidth = 2;
+		gbc_lblNewLabel.insets = new Insets(0, 0, 5, 5);
+		gbc_lblNewLabel.gridx = 1;
+		gbc_lblNewLabel.gridy = 4;
+		contentPane.add(lblNewLabel, gbc_lblNewLabel);
 
 		lblNewLabel_1 = new JLabel("Arquivos Servidor");
 		GridBagConstraints gbc_lblNewLabel_1 = new GridBagConstraints();
@@ -353,7 +374,7 @@ public class Tela extends JFrame implements IServer {
 		btnLigarServidor = new JButton("Ligar Servidor");
 		btnLigarServidor.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				if (servidor == null) {
+				if (conexaoServidor == null) {
 
 					try {
 						inicializaServidor();
@@ -397,12 +418,6 @@ public class Tela extends JFrame implements IServer {
 	}
 
 	private void inicializaServidor() throws AccessException, RemoteException {
-
-		System.setProperty("java.rmi.server.hostname", txtServidor.getText()); // seta
-																				// o
-		// hostname
-		// do
-		// RMI
 
 		conexaoServidor = (IServer) UnicastRemoteObject.exportObject(Tela.this, 0); // exporta
 
@@ -462,11 +477,7 @@ public class Tela extends JFrame implements IServer {
 			textArea.append("Cliente não encontrado\n");
 		}
 
-		System.out.println("Lista de Arquivos no servidor");
-
-		for (Arquivo arquivo : lista) {
-			System.out.println(arquivo);
-		}
+		
 
 	}
 
@@ -474,7 +485,7 @@ public class Tela extends JFrame implements IServer {
 	public Map<Cliente, List<Arquivo>> procurarArquivo(String query, TipoFiltro tipoFiltro, String filtro)
 			throws RemoteException {
 		// TODO Auto-generated method stub
-		return null;
+		return listaDeArquivos;
 	}
 
 	@Override

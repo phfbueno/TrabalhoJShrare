@@ -12,45 +12,45 @@ import javax.swing.table.TableModel;
 import br.univel.comum.interfaces.Arquivo;
 import br.univel.comum.interfaces.Cliente;
 
-public class ListaArquivos extends AbstractTableModel implements TableModel {
+public class MyTableModel extends AbstractTableModel implements TableModel {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1293228726079825126L;
 
-	Map<Cliente, List<Arquivo>> ListaDeArquivos = new HashMap<>();
+	Map<Cliente, List<Arquivo>> listaDeArquivos = new HashMap<>();
 
 	private int linhas;
 
-	private Object[][] Colunas;
+	private Object[][] colunas;
 
-	public ListaArquivos(Map<Cliente, List<Arquivo>> resultadoMapa) {
+	public MyTableModel(Map<Cliente, List<Arquivo>> resultadoMapa) {
 
-		this.ListaDeArquivos = resultadoMapa;
+		this.listaDeArquivos = resultadoMapa;
 
 		linhas = 0;
 
-		for (Entry<Cliente, List<Arquivo>> e : ListaDeArquivos.entrySet()) {
+		for (Entry<Cliente, List<Arquivo>> e : listaDeArquivos.entrySet()) {
 			linhas += e.getValue().size();
 		}
 
-		Colunas = new Object[linhas][8];
+		colunas = new Object[linhas][8];
 
 		int linha = 0;
-		for (Entry<Cliente, List<Arquivo>> e : ListaDeArquivos.entrySet()) {
+		for (Entry<Cliente, List<Arquivo>> e : listaDeArquivos.entrySet()) {
 
 			for (Arquivo arq : e.getValue()) {
 
-				Colunas[linha][0] = e.getKey().getNome();
-				Colunas[linha][1] = e.getKey().getIp();
-				Colunas[linha][2] = e.getKey().getPorta();
-				Colunas[linha][3] = arq.getNome();
-				Colunas[linha][4] = arq.getTamanho();
-				Colunas[linha][5] = arq.getExtensao();
-				Colunas[linha][5] = arq.getDataHoraModificacao();
-				Colunas[linha][6] = arq.getPath();
-				Colunas[linha][7] = arq.getMd5();
+				colunas[linha][0] = e.getKey().getNome();
+				colunas[linha][1] = e.getKey().getIp();
+				colunas[linha][2] = e.getKey().getPorta();
+				colunas[linha][3] = arq.getNome();
+				colunas[linha][4] = arq.getTamanho();
+				colunas[linha][5] = arq.getExtensao();
+				colunas[linha][5] = arq.getDataHoraModificacao();
+				colunas[linha][6] = arq.getPath();
+				colunas[linha][7] = arq.getMd5();
 
 				linha++;
 			}
@@ -77,30 +77,30 @@ public class ListaArquivos extends AbstractTableModel implements TableModel {
 		switch (col) {
 		case 0:
 
-			return Colunas[row][1];
+			return colunas[row][0];
 
 		case 1:
 
-			return Colunas[row][2];
+			return colunas[row][1];
 		case 2:
 
-			return Colunas[row][3];
+			return colunas[row][2];
 		case 3:
 
-			return Colunas[row][4];
+			return colunas[row][3];
 		case 4:
 
-			return Colunas[row][5];
+			return colunas[row][4];
 		case 5:
 
-			return Colunas[row][6];
+			return colunas[row][5];
 		case 6:
 
-			return Colunas[row][7];
+			return colunas[row][6];
 
 		case 7:
 
-			return Colunas[row][1];
+			return colunas[row][7];
 		
 		default:
 			return "";
