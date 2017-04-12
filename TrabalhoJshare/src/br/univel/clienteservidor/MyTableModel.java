@@ -9,8 +9,8 @@ import javax.swing.event.TableModelListener;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableModel;
 
-import br.univel.comum.interfaces.Arquivo;
-import br.univel.comum.interfaces.Cliente;
+import br.univel.jshare.comum.Arquivo;
+import br.univel.jshare.comum.Cliente;
 
 public class MyTableModel extends AbstractTableModel implements TableModel {
 
@@ -35,7 +35,7 @@ public class MyTableModel extends AbstractTableModel implements TableModel {
 			linhas += e.getValue().size();
 		}
 
-		colunas = new Object[linhas][8];
+		colunas = new Object[linhas][9];
 
 		int linha = 0;
 		for (Entry<Cliente, List<Arquivo>> e : listaDeArquivos.entrySet()) {
@@ -48,9 +48,9 @@ public class MyTableModel extends AbstractTableModel implements TableModel {
 				colunas[linha][3] = arq.getNome();
 				colunas[linha][4] = arq.getTamanho();
 				colunas[linha][5] = arq.getExtensao();
-				colunas[linha][5] = arq.getDataHoraModificacao();
-				colunas[linha][6] = arq.getPath();
-				colunas[linha][7] = arq.getMd5();
+				colunas[linha][6] = arq.getDataHoraModificacao();
+				colunas[linha][7] = arq.getPath();
+				colunas[linha][8] = arq.getMd5();
 
 				linha++;
 			}
@@ -62,7 +62,7 @@ public class MyTableModel extends AbstractTableModel implements TableModel {
 	@Override
 	public int getColumnCount() {
 		// TODO Auto-generated method stub
-		return 8;
+		return 9;
 	}
 
 	@Override
@@ -75,12 +75,11 @@ public class MyTableModel extends AbstractTableModel implements TableModel {
 	public Object getValueAt(int row, int col) {
 
 		return colunas[row][col];
-		
-		
+
 	}
-	
-	public String getCoumnName(int Column){
-		
+
+	public String getColumnName(int Column) {
+
 		switch (Column) {
 		case 0:
 
@@ -89,9 +88,10 @@ public class MyTableModel extends AbstractTableModel implements TableModel {
 		case 1:
 
 			return "Ip do Cliente";
+			
 		case 2:
-
-			return "Nome do Arquivo";
+			return "Porta do Cliente";
+			
 		case 3:
 
 			return "Nome do Arquivo";
@@ -100,20 +100,23 @@ public class MyTableModel extends AbstractTableModel implements TableModel {
 			return "Tamanho do Arquivo";
 		case 5:
 
-			return "Data da Modificação";
+			return "Extensao";
 		case 6:
+
+			return "Data da Modificação";
+		case 7:
 
 			return "Path do Arquivo";
 
-		case 7:
+		case 8:
 
 			return "MD5";
-		
+
 		default:
 			return "";
-			
+
 		}
-		
+
 	}
 
 }

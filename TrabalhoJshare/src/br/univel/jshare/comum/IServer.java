@@ -1,4 +1,4 @@
-package br.univel.comum.interfaces;
+package br.univel.jshare.comum;
 
 
 import java.rmi.Remote;

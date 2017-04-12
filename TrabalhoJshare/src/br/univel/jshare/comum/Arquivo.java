@@ -1,11 +1,12 @@
-package br.univel.comum.interfaces;
+package br.univel.jshare.comum;
 
 import java.io.Serializable;
 import java.util.Date;
 
 public class Arquivo implements Serializable {
 
-	private static final long serialVersionUID = -6451704449740098153L;
+	private static final long serialVersionUID = -6433462679928213637L;
+	
 
 	private long id;
 
