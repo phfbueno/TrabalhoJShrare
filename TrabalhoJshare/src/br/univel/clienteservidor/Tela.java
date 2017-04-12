@@ -27,6 +27,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.swing.AbstractButton;
 import javax.swing.DefaultComboBoxModel;
@@ -81,7 +82,7 @@ public class Tela extends JFrame implements IServer {
 	private JTextArea textArea;
 
 	SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
-	
+
 	Map<Cliente, List<Arquivo>> listaDeArquivos = new HashMap<>();
 	private JComboBox comboFiltro;
 	private JLabel lblFiltro;
@@ -218,19 +219,6 @@ public class Tela extends JFrame implements IServer {
 				threadPublicarLista.start();
 			}
 
-			public Cliente getMyCliente() {
-				Cliente cliente = null;
-				try {
-					cliente = new Cliente(1, InetAddress.getLocalHost().getHostName(),
-							InetAddress.getLocalHost().getHostAddress(), 1818);
-				} catch (UnknownHostException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-
-				return cliente;
-			}
-
 		});
 
 		lblPorta = new JLabel("Porta");
@@ -280,14 +268,26 @@ public class Tela extends JFrame implements IServer {
 
 				Map<Cliente, List<Arquivo>> procurarArquivo;
 				try {
-					procurarArquivo = conexaoCliente.procurarArquivo("", TipoFiltro.NOME, "");
+
+					String query = textPesquisa.getText();
+					String filtro = comboFiltro.getSelectedItem().toString();
+
+					TipoFiltro tipofiltro = TipoFiltro.valueOf(filtro);
+
+					procurarArquivo = conexaoCliente.procurarArquivo(query, tipofiltro, filtro);
 
 					TableModel tb = new MyTableModel(procurarArquivo);
 					table_1.setModel(tb);
-					
-					TableModel tb1 = new MyTableModel(listaDeArquivos);
+
+					Map<Cliente, List<Arquivo>> myMap = new HashMap<Cliente, List<Arquivo>>();
+
+					Cliente cliente = getMyCliente();
+					List<Arquivo> myFiles = getMyFiles();
+					myMap.put(cliente, myFiles);
+
+					TableModel tb1 = new MyTableModel(myMap);
 					table.setModel(tb1);
-					
+
 				} catch (RemoteException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -366,9 +366,11 @@ public class Tela extends JFrame implements IServer {
 				a.setNome(table_1.getValueAt(linha, 3).toString());
 				a.setTamanho(Integer.valueOf(table_1.getValueAt(linha, 4).toString()));
 				a.setExtensao(table_1.getValueAt(linha, 5).toString());
-//				a.setDataHoraModificacao(new Date(Long.parseLong(table_1.getValueAt(linha, 6).toString())));
+				// a.setDataHoraModificacao(new
+				// Date(Long.parseLong(table_1.getValueAt(linha,
+				// 6).toString())));
 				a.setPath(table_1.getValueAt(linha, 7).toString());
-//				a.setMd5(table_1.getValueAt(linha, 8).toString());
+				// a.setMd5(table_1.getValueAt(linha, 8).toString());
 
 				try {
 					Registry registryConDowload = LocateRegistry.getRegistry(c.getIp(), c.getPorta());
@@ -529,6 +531,20 @@ public class Tela extends JFrame implements IServer {
 			}
 		}
 		return myFiles;
+
+	}
+
+	public Cliente getMyCliente() {
+		Cliente cliente = null;
+		try {
+			cliente = new Cliente(1, InetAddress.getLocalHost().getHostName(),
+					InetAddress.getLocalHost().getHostAddress(), 1818);
+		} catch (UnknownHostException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		return cliente;
 	}
 
 	@Override
@@ -562,15 +578,66 @@ public class Tela extends JFrame implements IServer {
 	@Override
 	public Map<Cliente, List<Arquivo>> procurarArquivo(String query, TipoFiltro tipoFiltro, String filtro)
 			throws RemoteException {
-		// TODO Auto-generated method stub
-		return listaDeArquivos;
+
+		Map<Cliente, List<Arquivo>> listaDeRetorno = new HashMap<>();
+		List<Arquivo> listaTmp = new ArrayList<>();
+
+		for (Entry<Cliente, List<Arquivo>> e : listaDeArquivos.entrySet()) {
+
+			listaTmp.clear();
+
+			for (Arquivo arquivo : e.getValue()) {
+				switch (tipoFiltro) {
+				case NOME:
+					if (arquivo.getNome().contains(query)) {
+						listaTmp.add(arquivo);
+					}
+					break;
+
+				case EXTENSAO:
+					if (arquivo.getExtensao().contains(filtro)) {
+						if (arquivo.getNome().contains(query)) {
+							listaTmp.add(arquivo);
+						}
+					}
+					break;
+				case TAMANHO_MIN:
+					if (arquivo.getTamanho() >= Integer.valueOf(filtro)) {
+						if (arquivo.getNome().contains(query)) {
+							listaTmp.add(arquivo);
+						}
+					}
+					break;
+
+				case TAMANHO_MAX:
+					if (arquivo.getTamanho() <= Integer.valueOf(filtro)) {
+						if (arquivo.getNome().contains(query)) {
+							listaTmp.add(arquivo);
+						}
+					}
+					break;
+				default:
+					listaTmp.add(arquivo);
+					break;
+				}
+
+			}
+
+			Cliente cliente = new Cliente();
+			cliente.setIp(e.getKey().getIp());
+			cliente.setNome(e.getKey().getNome());
+			cliente.setPorta(e.getKey().getPorta());
+
+			listaDeRetorno.put(cliente, listaTmp);
+		}
+		return listaDeRetorno;
 	}
 
 	@Override
 	public byte[] baixarArquivo(Cliente cli, Arquivo arq) throws RemoteException {
-		
+
 		System.out.println(arq);
-		
+
 		byte[] dados = null;
 		Path path = Paths.get(arq.getPath());
 		try {
@@ -581,7 +648,7 @@ public class Tela extends JFrame implements IServer {
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
-		
+
 	}
 
 	@Override
