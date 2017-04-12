@@ -201,7 +201,7 @@ public class Tela extends JFrame implements IServer {
 							try {
 								conexaoCliente.publicarListaArquivos(getMyCliente(), getMyFiles());
 
-								System.out.println("Log -> Lista de Arquivos publicada..");
+//								System.out.println("Log -> Lista de Arquivos publicada..");
 
 								Thread.sleep(5000);
 
@@ -266,6 +266,27 @@ public class Tela extends JFrame implements IServer {
 		btnPesquisar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 
+				 Runnable runnable = new Runnable() {
+					public void run() {
+						extracted();
+						
+						try {
+							Thread.sleep(10000);
+						} catch (InterruptedException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+						
+					}
+				};
+				
+				Thread thread = new Thread(runnable);
+				
+				thread.start();
+
+			}
+
+			private void extracted() {
 				Map<Cliente, List<Arquivo>> procurarArquivo;
 				try {
 
@@ -292,7 +313,6 @@ public class Tela extends JFrame implements IServer {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-
 			}
 		});
 
@@ -580,10 +600,10 @@ public class Tela extends JFrame implements IServer {
 			throws RemoteException {
 
 		Map<Cliente, List<Arquivo>> listaDeRetorno = new HashMap<>();
-		List<Arquivo> listaTmp = new ArrayList<>();
+	
 
 		for (Entry<Cliente, List<Arquivo>> e : listaDeArquivos.entrySet()) {
-
+			List<Arquivo> listaTmp = new ArrayList<>();
 			listaTmp.clear();
 
 			for (Arquivo arquivo : e.getValue()) {
@@ -595,25 +615,25 @@ public class Tela extends JFrame implements IServer {
 					break;
 
 				case EXTENSAO:
-					if (arquivo.getExtensao().contains(filtro)) {
-						if (arquivo.getNome().contains(query)) {
+					if (arquivo.getExtensao().contains(query)) {
+						//if (arquivo.getNome().contains(query)) {
 							listaTmp.add(arquivo);
-						}
+						//}
 					}
 					break;
 				case TAMANHO_MIN:
-					if (arquivo.getTamanho() >= Integer.valueOf(filtro)) {
-						if (arquivo.getNome().contains(query)) {
+					if (arquivo.getTamanho() >= Integer.valueOf(query)) {
+						//if (arquivo.getNome().contains(query)) {
 							listaTmp.add(arquivo);
-						}
+						//}
 					}
 					break;
 
 				case TAMANHO_MAX:
-					if (arquivo.getTamanho() <= Integer.valueOf(filtro)) {
-						if (arquivo.getNome().contains(query)) {
+					if (arquivo.getTamanho() <= Integer.valueOf(query)) {
+						//if (arquivo.getNome().contains(query)) {
 							listaTmp.add(arquivo);
-						}
+						//}
 					}
 					break;
 				default:
