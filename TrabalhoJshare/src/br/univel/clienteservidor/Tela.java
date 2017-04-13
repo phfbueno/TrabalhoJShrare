@@ -169,6 +169,7 @@ public class Tela extends JFrame implements IServer {
 
 			public void actionPerformed(ActionEvent arg0) {
 				conectarnoServidor();
+				
 			}
 
 			private void conectarnoServidor() {
@@ -200,8 +201,10 @@ public class Tela extends JFrame implements IServer {
 
 							try {
 								conexaoCliente.publicarListaArquivos(getMyCliente(), getMyFiles());
+								carregarTabelas();
 
-//								System.out.println("Log -> Lista de Arquivos publicada..");
+								// System.out.println("Log -> Lista de Arquivos
+								// publicada..");
 
 								Thread.sleep(5000);
 
@@ -264,56 +267,14 @@ public class Tela extends JFrame implements IServer {
 
 		btnPesquisar = new JButton("Pesquisar");
 		btnPesquisar.addActionListener(new ActionListener() {
+			private Thread thread;
+
 			public void actionPerformed(ActionEvent arg0) {
-
-				 Runnable runnable = new Runnable() {
-					public void run() {
-						extracted();
-						
-						try {
-							Thread.sleep(10000);
-						} catch (InterruptedException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-						
-					}
-				};
-				
-				Thread thread = new Thread(runnable);
-				
-				thread.start();
-
+				carregarTabelas();
 			}
 
-			private void extracted() {
-				Map<Cliente, List<Arquivo>> procurarArquivo;
-				try {
+			
 
-					String query = textPesquisa.getText();
-					String filtro = comboFiltro.getSelectedItem().toString();
-
-					TipoFiltro tipofiltro = TipoFiltro.valueOf(filtro);
-
-					procurarArquivo = conexaoCliente.procurarArquivo(query, tipofiltro, filtro);
-
-					TableModel tb = new MyTableModel(procurarArquivo);
-					table_1.setModel(tb);
-
-					Map<Cliente, List<Arquivo>> myMap = new HashMap<Cliente, List<Arquivo>>();
-
-					Cliente cliente = getMyCliente();
-					List<Arquivo> myFiles = getMyFiles();
-					myMap.put(cliente, myFiles);
-
-					TableModel tb1 = new MyTableModel(myMap);
-					table.setModel(tb1);
-
-				} catch (RemoteException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
 		});
 
 		lblFiltro = new JLabel("Filtro");
@@ -553,6 +514,35 @@ public class Tela extends JFrame implements IServer {
 		return myFiles;
 
 	}
+	
+	private void carregarTabelas() {
+		Map<Cliente, List<Arquivo>> procurarArquivo;
+		try {
+
+			String query = textPesquisa.getText();
+			String filtro = comboFiltro.getSelectedItem().toString();
+
+			TipoFiltro tipofiltro = TipoFiltro.valueOf(filtro);
+
+			procurarArquivo = conexaoCliente.procurarArquivo(query, tipofiltro, filtro);
+
+			TableModel tb = new MyTableModel(procurarArquivo);
+			table_1.setModel(tb);
+
+			Map<Cliente, List<Arquivo>> myMap = new HashMap<Cliente, List<Arquivo>>();
+
+			Cliente cliente = getMyCliente();
+			List<Arquivo> myFiles = getMyFiles();
+			myMap.put(cliente, myFiles);
+
+			TableModel tb1 = new MyTableModel(myMap);
+			table.setModel(tb1);
+
+		} catch (RemoteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 
 	public Cliente getMyCliente() {
 		Cliente cliente = null;
@@ -600,7 +590,6 @@ public class Tela extends JFrame implements IServer {
 			throws RemoteException {
 
 		Map<Cliente, List<Arquivo>> listaDeRetorno = new HashMap<>();
-	
 
 		for (Entry<Cliente, List<Arquivo>> e : listaDeArquivos.entrySet()) {
 			List<Arquivo> listaTmp = new ArrayList<>();
@@ -616,24 +605,24 @@ public class Tela extends JFrame implements IServer {
 
 				case EXTENSAO:
 					if (arquivo.getExtensao().contains(query)) {
-						//if (arquivo.getNome().contains(query)) {
-							listaTmp.add(arquivo);
-						//}
+						// if (arquivo.getNome().contains(query)) {
+						listaTmp.add(arquivo);
+						// }
 					}
 					break;
 				case TAMANHO_MIN:
 					if (arquivo.getTamanho() >= Integer.valueOf(query)) {
-						//if (arquivo.getNome().contains(query)) {
-							listaTmp.add(arquivo);
-						//}
+						// if (arquivo.getNome().contains(query)) {
+						listaTmp.add(arquivo);
+						// }
 					}
 					break;
 
 				case TAMANHO_MAX:
 					if (arquivo.getTamanho() <= Integer.valueOf(query)) {
-						//if (arquivo.getNome().contains(query)) {
-							listaTmp.add(arquivo);
-						//}
+						// if (arquivo.getNome().contains(query)) {
+						listaTmp.add(arquivo);
+						// }
 					}
 					break;
 				default:
